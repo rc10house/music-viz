@@ -1,0 +1,5 @@
+1. Play sounds
+2. Play any sounds that are downloaded 
+3. Show downloaded songs and play them 
+4. Pull music from youtube and add it to library 
+5. Vizualize sounds
