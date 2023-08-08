@@ -391,6 +391,7 @@ checksum = "68354c5c6bd36d73ff3feceb05efa59b6acb7626617f4962be322a825e61f79a"
 name = "music-viz"
 version = "0.1.0"
 dependencies = [
+ "ngrammatic",
  "rodio",
 ]
 
@@ -422,6 +423,12 @@ checksum = "3cf2aae958bd232cac5069850591667ad422d263686d75b52a065f9badeee5a3"
 dependencies = [
  "jni-sys",
 ]
+
+[[package]]
+name = "ngrammatic"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3c6f2f987e82da7fb8a290e959bba528638bc0e2629e38647591e845ecb5f6fe"
 
 [[package]]
 name = "nix"
