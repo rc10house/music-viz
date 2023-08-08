@@ -1,10 +1,17 @@
 use ngrammatic::{CorpusBuilder, Pad};
+use reqwest::{self, Response};
 use rodio::{Decoder, OutputStream, Sink};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs::{self, File};
 use std::io::{stdin, BufReader};
 use std::path::PathBuf;
 
+const YOUTUBE_SEARCH: &str =
+    "https://youtube.googleapis.com/youtube/v3/search?part=snippet&part=id&q=";
+const API_KEY: &str = "&key=AIzaSyCIVk8DHCPmnOEuTbxol_S_a9DeJcVQM68";
+
+// Searches the library for a song name using fuzzy search
 fn search_library(library: &HashMap<String, PathBuf>) -> PathBuf {
     // build corpus for searching
     let mut corpus = CorpusBuilder::new().arity(2).pad_full(Pad::Auto).finish();
@@ -50,6 +57,7 @@ fn search_library(library: &HashMap<String, PathBuf>) -> PathBuf {
     }
 }
 
+// Plays a song
 fn play_song(library: &HashMap<String, PathBuf>) {
     let song: PathBuf = search_library(library);
     // get output stream handle to sound device
@@ -84,10 +92,36 @@ fn load_library(library: &mut HashMap<String, PathBuf>) {
     println!("HashMap: {:?}", library);
 }
 
+// Displays the library for the user
 fn show_library(library: &HashMap<String, PathBuf>) {
     for (key, _) in library {
         println!("{key}");
     }
+}
+
+fn send_request(search_string: String) {
+    // format search string
+    let formatted_string = search_string.replace(" ", "%20");
+
+    let body = reqwest::blocking::get(YOUTUBE_SEARCH.to_owned() + &formatted_string + API_KEY)
+        .expect("[!] request faileld")
+        .json::<serde_json::Value>()
+        .expect("[!] Reading response failed");
+
+    for i in 0..5 {
+        println!(
+            "{} - {} - {}",
+            i, body["items"][i]["snippet"]["title"], body["items"][i]["id"]["videoId"]
+        );
+    }
+}
+
+// Pulls song from youtube in mp3 form and adds it to library
+fn download_song(library: &mut HashMap<String, PathBuf>) {
+    let mut input = String::new();
+    println!("Search Youtube:");
+    stdin().read_line(&mut input).expect("[!] Invalid input");
+    send_request(input);
 }
 
 fn main() {
@@ -95,10 +129,11 @@ fn main() {
     let mut library = HashMap::new();
 
     let welcome_string: &str = "Welcome\n
-        1 - Play a song
+        1 - Play song from library
         2 - View songs 
-        3 - Help 
-        4 - Exit";
+        3 - Download song
+        4 - Help 
+        5 - Exit";
 
     load_library(&mut library);
 
@@ -112,8 +147,9 @@ fn main() {
         match input.as_str().trim_end() {
             "1" => play_song(&library),
             "2" => show_library(&library),
-            "3" => println!("{}", welcome_string),
-            "4" => break,
+            "3" => download_song(&mut library),
+            "4" => println!("{}", welcome_string),
+            "5" => break,
             _ => println!("[!] Invalid option"),
         }
     }
