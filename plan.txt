@@ -4,3 +4,9 @@
 4. Pull music from youtube and add it to library 
 5. Sound viz functionality
 6. Front end and gui
+
+
+Current non-crate dependencies:
+yt-dlp
+ffmpeg
+ffprobe

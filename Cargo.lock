@@ -723,7 +723,6 @@ dependencies = [
  "ngrammatic",
  "reqwest",
  "rodio",
- "serde",
  "serde_json",
 ]
 
