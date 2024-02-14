@@ -1,1 +1,5 @@
 /target
+library/
+.DS_Store
+src/.DS_Store 
+src/yt-dlp

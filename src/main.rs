@@ -1,6 +1,9 @@
+use minimp3::Decoder as dc;
+use minimp3::{Error, Frame};
 use ngrammatic::{CorpusBuilder, Pad};
 use reqwest::{self};
 use rodio::{Decoder, OutputStream, Sink};
+use spectrum_analyzer::{samples_fft_to_spectrum, FrequencyLimit};
 use std::collections::HashMap;
 use std::fs::{self, File};
 use std::io::{stdin, BufReader};
@@ -9,7 +12,6 @@ use std::process::Command;
 
 const YOUTUBE_SEARCH: &str =
     "https://youtube.googleapis.com/youtube/v3/search?part=snippet&part=id&q=";
-const API_KEY: &str = "&key=AIzaSyCIVk8DHCPmnOEuTbxol_S_a9DeJcVQM68";
 const DOWNLOAD_LOC: &str = "/Users/Ryan/soft/music-viz/library/";
 const YOUTUBE_URL: &str = "https://www.youtube.com/watch?v=";
 
@@ -166,6 +168,34 @@ fn download_song() {
         .expect("[!] yt-dlp failed to execute");
 }
 
+fn test_fft() {
+    let mut decoder = dc::new(File::open("/Users/Ryan/soft/music-viz/library/myeyes.mp3").unwrap());
+
+    loop {
+        match decoder.next_frame() {
+            Ok(Frame {
+                data,
+                sample_rate,
+                channels,
+                ..
+            }) => {
+                //println!("Decoded {} samples", data.len() / channels);
+                //println!("Data: {:?}", data);
+                if data[0] > 40 {
+                    println!("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+                } else {
+                    for _ in 0..data[0] {
+                        print!("x");
+                    }
+                }
+                println!("");
+            }
+            Err(Error::Eof) => break,
+            Err(e) => panic!("{:?}", e),
+        }
+    }
+}
+
 fn main() {
     // Initialize library hashmap
     let mut library = HashMap::new();
@@ -192,6 +222,7 @@ fn main() {
             "3" => download_song(),
             "4" => println!("{}", welcome_string),
             "5" => break,
+            "6" => test_fft(),
             _ => println!("[!] Invalid option"),
         }
     }
